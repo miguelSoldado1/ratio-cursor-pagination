@@ -1,5 +1,5 @@
 import { FilterQuery, Model, PipelineStage } from "mongoose";
-import { InfinitePaginationParams } from "./types";
+import type { InfinitePaginationParams } from "./types";
 
 export default async function infinitePagination<T>(params: InfinitePaginationParams<T>, model: Model<T>) {
   const match = await generateCursorQuery<T>(params, model);

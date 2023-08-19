@@ -1,26 +1,16 @@
-import mongoose, { FilterQuery, ObjectId, PipelineStage } from "mongoose";
+import { FilterQuery, PipelineStage, Types } from "mongoose";
 
-export type TablePaginationParams<T> = {
-  next: mongoose.Types.ObjectId | null;
-  previous: mongoose.Types.ObjectId | null;
+interface PaginationParams<T> {
+  next: Types.ObjectId | null;
   limit: number;
   sortAscending?: boolean;
   paginatedField?: keyof T;
   query?: PipelineStage[];
   match?: FilterQuery<T>;
-};
+}
 
-export type InfinitePaginationParams<T> = {
-  next: mongoose.Types.ObjectId | null;
-  limit: number;
-  sortAscending?: boolean;
-  paginatedField?: keyof T;
-  query?: PipelineStage[];
-  match?: FilterQuery<T>;
-};
+export interface TablePaginationParams<T> extends PaginationParams<T> {
+  previous: Types.ObjectId | null;
+}
 
-export type TablePaginationResult = {
-  next: string | null;
-  previous: string | null;
-  results: any[];
-};
+export type InfinitePaginationParams<T> = PaginationParams<T>;

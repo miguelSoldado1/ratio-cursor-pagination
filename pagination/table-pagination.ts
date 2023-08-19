@@ -1,5 +1,5 @@
 import { FilterQuery, Model, PipelineStage } from "mongoose";
-import { TablePaginationParams, TablePaginationResult } from "./types";
+import type { TablePaginationParams } from "./types";
 
 export default async function tablePagination<T>(params: TablePaginationParams<T>, model: Model<T>) {
   const match = await generateCursorQuery<T>(params, model);
@@ -116,7 +116,7 @@ function generateSort<T>(params: TablePaginationParams<T>): FilterQuery<T> {
   return { [params.paginatedField]: sortDir, _id: sortDir };
 }
 
-function generateResponse<T>(results: any[], params: TablePaginationParams<T>): TablePaginationResult {
+function generateResponse<T>(results: any[], params: TablePaginationParams<T>) {
   const hasMore = results.length > params.limit;
   if (hasMore) results.pop();
 
