@@ -50,17 +50,16 @@ async function generateCursorQuery<T>(params: InfinitePaginationParams<T>, model
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          $or: [
-            onlyUndefs,
-            {
-              ...onlyNulls,
-              _id: { $lt: cursor },
-            },
-          ],
-        } as FilterQuery<T>;
       }
+      return {
+        $or: [
+          onlyUndefs,
+          {
+            ...onlyNulls,
+            _id: { $lt: cursor },
+          },
+        ],
+      } as FilterQuery<T>;
     case undefined:
       if (sortAsc) {
         return {
@@ -72,12 +71,11 @@ async function generateCursorQuery<T>(params: InfinitePaginationParams<T>, model
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          ...onlyUndefs,
-          _id: { $lt: cursor },
-        };
       }
+      return {
+        ...onlyUndefs,
+        _id: { $lt: cursor },
+      };
     default:
       if (sortAsc) {
         return {
@@ -89,18 +87,17 @@ async function generateCursorQuery<T>(params: InfinitePaginationParams<T>, model
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          $or: [
-            { [field]: { $lt: doc[params.paginatedField] } },
-            nullOrUndefined,
-            {
-              [field]: { $eq: doc[params.paginatedField] },
-              _id: { $lt: cursor },
-            },
-          ],
-        } as FilterQuery<T>;
       }
+      return {
+        $or: [
+          { [field]: { $lt: doc[params.paginatedField] } },
+          nullOrUndefined,
+          {
+            [field]: { $eq: doc[params.paginatedField] },
+            _id: { $lt: cursor },
+          },
+        ],
+      } as FilterQuery<T>;
   }
 }
 

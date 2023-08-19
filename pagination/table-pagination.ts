@@ -51,17 +51,16 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          $or: [
-            onlyUndefs,
-            {
-              ...onlyNulls,
-              _id: { $lt: doc._id },
-            },
-          ],
-        } as FilterQuery<T>;
       }
+      return {
+        $or: [
+          onlyUndefs,
+          {
+            ...onlyNulls,
+            _id: { $lt: doc._id },
+          },
+        ],
+      } as FilterQuery<T>;
     case undefined:
       if (sortAsc) {
         return {
@@ -73,12 +72,11 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          ...onlyUndefs,
-          _id: { $lt: doc._id },
-        };
       }
+      return {
+        ...onlyUndefs,
+        _id: { $lt: doc._id },
+      };
     default:
       if (sortAsc) {
         return {
@@ -90,18 +88,17 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             },
           ],
         } as FilterQuery<T>;
-      } else {
-        return {
-          $or: [
-            { [field]: { $lt: doc[params.paginatedField] } },
-            nullOrUndefined,
-            {
-              [field]: { $eq: doc[params.paginatedField] },
-              _id: { $lt: doc._id },
-            },
-          ],
-        } as FilterQuery<T>;
       }
+      return {
+        $or: [
+          { [field]: { $lt: doc[params.paginatedField] } },
+          nullOrUndefined,
+          {
+            [field]: { $eq: doc[params.paginatedField] },
+            _id: { $lt: doc._id },
+          },
+        ],
+      } as FilterQuery<T>;
   }
 }
 
