@@ -23,7 +23,7 @@ async function generateCursorQuery<T>(params: InfinitePaginationParams<T>, model
   const sortAsc = params.sortAscending;
   const cursor = params.next;
 
-  if (!params.paginatedField || params.paginatedField == "_id") {
+  if (!params.paginatedField || params.paginatedField === "_id") {
     if (params.sortAscending) return { _id: { $gt: cursor } };
     return { _id: { $lt: cursor } };
   }
