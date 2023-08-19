@@ -28,13 +28,21 @@ export async function compareFunctions(newFunction: FunctionType, oldFunction: F
   // warmup the db
   await postLike.find({ user_id: "miguelsoldado_" });
 
-  console.time("new_function");
+  const newStartTime = performance.now();
   const newResult = await newFunction();
-  console.timeEnd("new_function");
+  const newEndTime = performance.now();
+  const newDuration = newEndTime - newStartTime;
 
-  console.time("old_function");
+  const oldStartTime = performance.now();
   const oldResult = await oldFunction();
-  console.timeEnd("old_function");
+  const oldEndTime = performance.now();
+  const oldDuration = oldEndTime - oldStartTime;
+
+  console.log("new_function:", newDuration);
+  console.log("old_function:", oldDuration);
+
+  const performanceImprovement = ((oldDuration - newDuration) / oldDuration) * 100;
+  console.log(`performance improvement: ${performanceImprovement.toFixed(2)}%`);
 
   if (!arraysEqual(newResult.results, oldResult.results)) {
     console.error("error");
