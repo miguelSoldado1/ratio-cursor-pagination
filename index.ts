@@ -1,10 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import dotenv from "dotenv";
 import postRating, { PostRating } from "./models/postRating";
 import postLike from "./models/postLike";
 import { tablePagination, infinitePagination } from "./pagination";
 import { compareAlbumRatings, compareGetUserFollowers, compareGetUserRating, comparePostLikes } from "./ratio_db_tests";
 import { arraysEqual } from "./utils";
+import { newGetUserRatings } from "./ratio_db_tests/new";
 import type { InfinitePaginationParams, TablePaginationParams } from "./pagination/types";
 
 dotenv.config();
@@ -49,6 +50,30 @@ export async function compareFunctions(newFunction: FunctionType, oldFunction: F
   } else {
     console.log("success");
   }
+}
+
+// validate if oldest and latest filters work fine
+async function validateOldestAndLatest() {
+  let latestArray = [];
+  let oldestArray = [];
+
+  for (let i = 0; i < 2; i++) {
+    let next = undefined;
+    while (next !== null) {
+      const result = await newGetUserRatings({
+        profileId: "miguelsoldado_",
+        userId: "miguelsoldado_",
+        next: next,
+        limit: 8,
+        sortAscending: i === 1,
+      });
+      next = result.next ? new Types.ObjectId(result.next) : null;
+      if (i === 0) latestArray = [...latestArray, ...result.results];
+      if (i === 1) oldestArray = [...oldestArray, ...result.results];
+    }
+  }
+
+  return arraysEqual(latestArray, oldestArray.reverse());
 }
 
 // validates if the pagination is fine on backwards and forwards
