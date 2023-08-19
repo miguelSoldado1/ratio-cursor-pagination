@@ -39,7 +39,7 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
 
   const doc = await model.findById(cursor);
 
-  switch (doc[params.paginatedField]) {
+  switch (doc?.[params.paginatedField]) {
     case null:
       if (sortAsc) {
         return {
@@ -47,7 +47,7 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             notNullNorUndefined,
             {
               ...onlyNulls,
-              _id: { $gt: doc._id },
+              _id: { $gt: cursor },
             },
           ],
         } as FilterQuery<T>;
@@ -57,7 +57,7 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
           onlyUndefs,
           {
             ...onlyNulls,
-            _id: { $lt: doc._id },
+            _id: { $lt: cursor },
           },
         ],
       } as FilterQuery<T>;
@@ -68,14 +68,14 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             notUndefined,
             {
               ...onlyUndefs,
-              _id: { $gt: doc._id },
+              _id: { $gt: cursor },
             },
           ],
         } as FilterQuery<T>;
       }
       return {
         ...onlyUndefs,
-        _id: { $lt: doc._id },
+        _id: { $lt: cursor },
       };
     default:
       if (sortAsc) {
@@ -84,7 +84,7 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
             { [field]: { $gt: doc[params.paginatedField] } },
             {
               [field]: { $eq: doc[params.paginatedField] },
-              _id: { $gt: doc._id },
+              _id: { $gt: cursor },
             },
           ],
         } as FilterQuery<T>;
@@ -95,7 +95,7 @@ async function generateCursorQuery<T>(params: TablePaginationParams<T>, model: M
           nullOrUndefined,
           {
             [field]: { $eq: doc[params.paginatedField] },
-            _id: { $lt: doc._id },
+            _id: { $lt: cursor },
           },
         ],
       } as FilterQuery<T>;
