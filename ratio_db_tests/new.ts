@@ -113,12 +113,12 @@ export async function newGetPostLikes(params: GetPostLikesParams<PostLike>) {
   return await infinitePagination<PostLike>(paginationParams, postLike);
 }
 
-interface GetUserFOllowersParams<T> extends Omit<InfinitePaginationParams<T>, "query" | "match"> {
+interface GetUserFollowersParams<T> extends Omit<InfinitePaginationParams<T>, "query" | "match"> {
   profileId: string;
   userId: string;
 }
 
-export async function newGetUserFollowers(params: GetUserFOllowersParams<Follow>) {
+export async function newGetUserFollowers(params: GetUserFollowersParams<Follow>) {
   const { profileId, userId, next, ...rest } = params;
 
   const paginationParams: InfinitePaginationParams<Follow> = {
