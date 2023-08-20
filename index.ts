@@ -3,7 +3,13 @@ import dotenv from "dotenv";
 import postRating, { PostRating } from "./models/postRating";
 import postLike from "./models/postLike";
 import { tablePagination, infinitePagination } from "./pagination";
-import { compareAlbumRatings, compareGetUserFollowers, compareGetUserRating, comparePostLikes } from "./ratio_db_tests";
+import {
+  compareAlbumRatings,
+  compareGetFollowingRatings,
+  compareGetUserFollowers,
+  compareGetUserRating,
+  comparePostLikes,
+} from "./ratio_db_tests";
 import { arraysEqual } from "./utils";
 import { newGetUserRatings } from "./ratio_db_tests/new";
 import type { InfinitePaginationParams, TablePaginationParams } from "./pagination/types";
@@ -21,6 +27,8 @@ async function main() {
   await comparePostLikes();
   console.log("album ratings:");
   await compareAlbumRatings();
+  console.log("following ratings:");
+  await compareGetFollowingRatings();
 }
 
 type FunctionType = () => Promise<{ results: any[]; next: any }>;

@@ -224,3 +224,67 @@ export async function newGetUserRatings(params: GetUserRatingsParams<PostRating>
 
   return await infinitePagination<PostRating>(paginationParams, postRating);
 }
+
+interface GetFollowingRatingsParams<T> extends Omit<InfinitePaginationParams<T>, "query" | "match"> {
+  userId: string;
+}
+
+export async function newGetFollowingRatings(params: GetFollowingRatingsParams<PostRating>) {
+  const { userId, next, ...rest } = params;
+
+  const paginationParams: InfinitePaginationParams<PostRating> = {
+    match: {
+      $or: [
+        // Match posts from users the current user is following
+        {
+          user_id: {
+            $in: await follow.find({ follower_id: userId }).distinct("following_id"),
+          },
+        },
+        // Match posts from the given user
+        {
+          user_id: userId,
+        },
+      ],
+      _id: {
+        $lt: typeof next === "string" ? new Types.ObjectId(next) : new Types.ObjectId(),
+      },
+    },
+    query: [
+      {
+        $lookup: {
+          from: postLike.collection.name,
+          localField: "_id",
+          foreignField: "post_id",
+          as: POST_LIKES,
+        },
+      },
+      {
+        $addFields: {
+          likes: { $size: `$${POST_LIKES}` },
+          liked_by_user: {
+            $gt: [
+              {
+                $size: {
+                  $filter: {
+                    input: `$${POST_LIKES}`,
+                    as: "like",
+                    cond: { $eq: ["$$like.user_id", userId] },
+                  },
+                },
+              },
+              0,
+            ],
+          },
+          // just added so the array comparer works ok
+          _id: { $toString: "$_id" },
+          createdAt: { $toString: "$createdAt" },
+        },
+      },
+    ],
+    next: next,
+    ...rest,
+  };
+
+  return await infinitePagination<PostRating>(paginationParams, postRating);
+}

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { compareFunctions } from "..";
-import { newGetCommunityAlbumRatings, newGetPostLikes, newGetUserFollowers, newGetUserRatings } from "./new";
-import { oldGetCommunityAlbumRatings, oldGetPostLikes, oldGetUserFollowers, oldGetUserRatings } from "./old";
+import * as newFunctions from "./new";
+import * as oldFunctions from "./old";
 
 export async function compareGetUserRating() {
   const profileId = "1191841097";
@@ -11,14 +11,14 @@ export async function compareGetUserRating() {
 
   await compareFunctions(
     async () =>
-      await newGetUserRatings({
+      await newFunctions.newGetUserRatings({
         profileId,
         userId,
         next: Types.ObjectId.isValid(nextString) ? new Types.ObjectId(nextString) : null,
         limit,
         sortAscending: true,
       }),
-    async () => await oldGetUserRatings({ profileId, userId, next: nextString, limit, filter: "oldest" })
+    async () => await oldFunctions.oldGetUserRatings({ profileId, userId, next: nextString, limit, filter: "oldest" })
   );
 }
 
@@ -30,13 +30,13 @@ export async function compareGetUserFollowers() {
 
   await compareFunctions(
     async () =>
-      await newGetUserFollowers({
+      await newFunctions.newGetUserFollowers({
         profileId,
         userId,
         next: Types.ObjectId.isValid(nextString) ? new Types.ObjectId(nextString) : null,
         limit,
       }),
-    async () => await oldGetUserFollowers({ profileId, userId, next: nextString, limit })
+    async () => await oldFunctions.oldGetUserFollowers({ profileId, userId, next: nextString, limit })
   );
 }
 
@@ -48,13 +48,13 @@ export async function comparePostLikes() {
 
   await compareFunctions(
     async () =>
-      await newGetPostLikes({
+      await newFunctions.newGetPostLikes({
         postId,
         userId,
         next: Types.ObjectId.isValid(nextString) ? new Types.ObjectId(nextString) : null,
         limit,
       }),
-    async () => await oldGetPostLikes({ postId, userId, next: nextString, limit })
+    async () => await oldFunctions.oldGetPostLikes({ postId, userId, next: nextString, limit })
   );
 }
 
@@ -66,13 +66,29 @@ export async function compareAlbumRatings() {
 
   await compareFunctions(
     async () =>
-      await newGetCommunityAlbumRatings({
+      await newFunctions.newGetCommunityAlbumRatings({
         userId,
         albumId,
         limit,
         next: Types.ObjectId.isValid(nextString) ? new Types.ObjectId(nextString) : null,
         previous: null,
       }),
-    async () => await oldGetCommunityAlbumRatings({ userId, albumId, limit, pageNumber: 0 })
+    async () => await oldFunctions.oldGetCommunityAlbumRatings({ userId, albumId, limit, pageNumber: 0 })
+  );
+}
+
+export async function compareGetFollowingRatings() {
+  const userId = "miguelsoldado_";
+  const limit = 10;
+  const nextString = "63d83f441c37207fa0a89f76";
+
+  await compareFunctions(
+    async () =>
+      await newFunctions.newGetFollowingRatings({
+        userId,
+        limit,
+        next: Types.ObjectId.isValid(nextString) ? new Types.ObjectId(nextString) : null,
+      }),
+    async () => await oldFunctions.oldGetFollowingRatings({ userId, limit, next: nextString })
   );
 }

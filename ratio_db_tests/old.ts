@@ -234,6 +234,78 @@ export async function oldGetUserRatings({ userId, profileId, filter, next, limit
   return { results: result, next: result[limit - 1]?._id ?? null };
 }
 
+interface GetFollowingRatingsParams {
+  userId: string;
+  next: string;
+  limit: number;
+}
+
+export async function oldGetFollowingRatings({ userId, next, limit }: GetFollowingRatingsParams) {
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        $or: [
+          // Match posts from users the current user is following
+          {
+            user_id: {
+              $in: await follow.find({ follower_id: userId }).distinct("following_id"),
+            },
+          },
+          // Match posts from the given user
+          {
+            user_id: userId,
+          },
+        ],
+        _id: {
+          $lt: typeof next === "string" ? new Types.ObjectId(next) : new Types.ObjectId(),
+        },
+      },
+    },
+    // Sort the posts by the creation date in descending order
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $lookup: {
+        from: postLike.collection.name,
+        localField: "_id",
+        foreignField: "post_id",
+        as: POST_LIKES,
+      },
+    },
+    {
+      $addFields: {
+        likes: { $size: `$${POST_LIKES}` },
+        liked_by_user: {
+          $gt: [
+            {
+              $size: {
+                $filter: {
+                  input: `$${POST_LIKES}`,
+                  as: "like",
+                  cond: { $eq: ["$$like.user_id", userId] },
+                },
+              },
+            },
+            0,
+          ],
+        },
+        // just added so the array comparer works ok
+        _id: { $toString: "$_id" },
+        createdAt: { $toString: "$createdAt" },
+      },
+    },
+  ];
+
+  const result = await postRating.aggregate(pipeline);
+  return { results: result, next: result[limit - 1]?._id ?? null };
+}
+
 const handleCursorFilters = async (
   filter: string | undefined,
   user_id: string,
